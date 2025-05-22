@@ -1,3 +1,5 @@
+start=`date +%s%2N`
+
 # install antigen if not exists
 if [[ ! -f ~/.antigen/antigen.zsh ]]; then
   set -e
@@ -7,102 +9,115 @@ if [[ ! -f ~/.antigen/antigen.zsh ]]; then
   set +e
 fi
 
+export MY_HELP=""
+
+hlp() {
+  echo -e "${MY_HELP}"
+}
+
+function add_hlp() {
+  local hlp_str="$1"
+  MY_HELP="${MY_HELP}\n${hlp_str}"
+  echo -e "${hlp_str}"
+}
+
+add_hlp "=== Useful commands in ZSH ==="
+add_hlp "hlp - show this message"
+
 # Load Antigen
 source ~/.antigen/antigen.zsh
-
-# Oh my ZSH plugins
-  echo
-  echo "=== Useful commands in ZSH ==="
   antigen use oh-my-zsh
-
-  antigen bundle aliases
-    echo "als - list aliases"
-
-  antigen bundle ansible # Aliases for ansible
-  antigen bundle common-aliases # Common aliases
-  antigen bundle command-not-found # Give install hint when there is no given tool in the system
-  antigen bundle colored-man-pages # Color the man pages
-  antigen bundle dircycle # Cycle thru dirs with arrows
-    echo "Navigate dirs with Ctrl + Shift + Arrow"
-
-  antigen bundle encode64
-    echo "encode64 - encode base64"
-
-  antigen bundle extract # Provide extract command
-    echo "extract - extract popular achives"
-
-  antigen bundle git
-  antigen bundle git-auto-fetch
-  antigen bundle git-commit
-    echo "git <type> <message> - aliases for useful git commit messages"
-
-  antigen bundle gitignore
-    echo "gi - show gitignore for given tech"
-
-  antigen bundle history # Aliases for history
-  antigen bundle kubectl # Aliases for kubectl
-  antigen bundle nmap # Aliases for nmap
-  antigen bundle pj # Jump to directory in given directory in PROJECT_PATHS
-    echo "pj - jump to directory inside PROJECT_PATHS"
-
-  antigen bundle python
-  antigen bundle pip
-  antigen bundle pyenv
-  antigen bundle safe-paste # Prevent executing pasted commands
-  antigen bundle ssh # Completion based on ssh config
-  antigen bundle sudo # Shortcut for sudo before last command
-    echo "[Esc][Esc] - add sudo before last command"
-
-  antigen bundle supervisor # Aliases for supervisor
-  antigen bundle terraform # Aliases for terraform
-  antigen bundle tmux # Aliases for tmux
-  antigen bundle tmuxinator # Aliases for tmuxinator
-  antigen bundle ubuntu # Aliases and autocompletion for ubuntu
-  antigen bundle ufw # Aliases for ufw
-  antigen bundle universalarchive # Provide universalarchive tool
-    echo "ua - compress files into an archive file using given format"
-
-  antigen bundle urltools # Provide urlencode/urldecode
-    echo "urlencode/urldecode - encode/decode urls for browser"
-
-  antigen bundle vagrant # Aliases for vagrant
-  antigen bundle vscode # Aliases for vscode
-  antigen bundle yum # Aliases for yum
-  antigen bundle zsh-interactive-cd # Interactive way to change directories in zsh using fzf
-
-  # External Plugin
-  antigen bundle zsh-users/zsh-completions
-  antigen bundle zsh-users/zsh-autosuggestions
-  antigen bundle zsh-users/zsh-history-substring-search
-
-  antigen bundle Tarrasch/zsh-autoenv
-  antigen bundle Tarrasch/zsh-bd
-    alias cdb='bd'
-    echo "cdb - jump back to dir down the stack"
-
-    function list_all() {
-        emulate -L zsh
-        ls -d | head -n 10 | paste -sd ' ' - | { dirs=$(cat); printf "%s" "$dirs"; [ $(ls -d | wc -l) -gt 10 ] && printf " ..."; echo; }
-    }
-  chpwd_functions=(${chpwd_functions[@]} "list_all") # Show the first 10 directories check changing directory
-
-  antigen bundle webyneter/docker-aliases.git
-
-    export YSU_MESSAGE_POSITION="after" # Give suggestion after running command
-    # export YSU_HARDCORE=1 # Hardcore mode to enforce the use of aliases.
-  antigen bundle "MichaelAquilina/zsh-you-should-use"
-
-  antigen bundle zsh-users/zsh-syntax-highlighting # must be last plugin to get effect
 
   # Load the Jovial theme and plugins
   antigen theme zthxxx/jovial
   antigen bundle zthxxx/jovial
 
+  antigen bundle safe-paste # Prevent executing pasted commands
+  antigen bundle command-not-found # Give install hint when there is no given tool in the system
+  antigen bundle Tarrasch/zsh-autoenv
+
+  # antigen bundle zsh-users/zsh-history-substring-search
+  antigen bundle sudo # Shortcut for sudo before last command
+    add_hlp "[Esc][Esc] - add sudo before last command"
+
+  antigen bundle ubuntu
+  antigen bundle ufw
+
+  antigen bundle aliases
+    add_hlp "als - list aliases"
+
+  antigen bundle common-aliases
+  antigen bundle encode64
+    add_hlp "e64 / d64 - encode/decode base64"
+  antigen bundle extract
+    add_hlp "extract <name> - extract popular achives"
+  antigen bundle universalarchive
+    add_hlp "ua <type> <name> - compress files into an archive file using given format"
+
+  antigen bundle git
+  antigen bundle git-auto-fetch
+  antigen bundle git-commit
+    add_hlp "git <type> <message> - aliases for useful git commit messages"
+  antigen bundle gitignore
+    add_hlp "gi - show gitignore for given tech"
+
+  antigen bundle nmap # Aliases for nmap
+  antigen bundle ssh # Completion based on ssh config
+
+  antigen bundle python
+  antigen bundle pip
+
+  antigen bundle urltools # Provide urlencode/urldecode
+    add_hlp "urlencode/urldecode - encode/decode urls for browser"
+
+  antigen bundle Tarrasch/zsh-bd
+    alias cdb='bd'
+    add_hlp "cdb - jump back to dir down the stack"
+
+  (( $+commands[ansible] )) && antigen bundle ansible # Aliases for ansible
+  (( $+commands[docker] )) && antigen bundle webyneter/docker-aliases.git
+  (( $+commands[vagrant] )) && antigen bundle vagrant # Aliases for vagrant
+  (( $+commands[kubectl] )) && antigen bundle kubectl # Aliases for kubectl
+  (( $+commands[pyenv] )) && antigen bundle pyenv
+  (( $+commands[task] )) && eval "$(task --completion zsh)"
+
+  antigen bundle joshskidmore/zsh-fzf-history-search
+  antigen bundle Aloxaf/fzf-tab
+    zstyle ':completion:*:git-checkout:*' sort false  # disable sort when completing `git checkout`
+    zstyle ':completion:*:descriptions' format '[%d]' # set descriptions format to enable group support
+    zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS} # set list-colors to enable filename colorizing
+    zstyle ':completion:*' menu no  # force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
+    zstyle ':fzf-tab:complete:cd:*' fzf-preview 'lsd -1lLAvg --group-dirs=first --icon=never --blocks=permission,size,git,name --color=always $realpath' # preview directory's content with eza when completing cd
+    # zstyle ':fzf-tab:*' fzf-flags --color=fg:1,fg+:2 # custom fzf flags
+    zstyle ':fzf-tab:*' use-fzf-default-opts yes  # To make fzf-tab follow FZF_DEFAULT_OPTS. This may lead to unexpected behavior.
+    zstyle ':fzf-tab:*' switch-group '<' '>' # switch group using `<` and `>`
+
+  antigen bundle zsh-users/zsh-completions
+  antigen bundle zsh-users/zsh-autosuggestions # must be last plugin to get effect
+  antigen bundle zdharma-continuum/fast-syntax-highlighting # must be last plugin to get effect
+
+    export YSU_MESSAGE_POSITION="after" # Give suggestion after running command
+    # export YSU_HARDCORE=1 # Hardcore mode to enforce the use of aliases.
+  antigen bundle "MichaelAquilina/zsh-you-should-use"
+
 # After all, tell Antigen that you're done, then antigen will start
 antigen apply
 
-# Eval autocompletion
-if [[ `which task &>/dev/null && $?` == 0 ]]; then
-  eval "$(task --completion zsh)"
-fi
+alias ls="lsd --color=auto --icon=never"
+alias ll="lsd -1lLAvg --group-dirs=first --icon=never --hyperlink=auto"
+alias lt="lsd -1lLAvg --group-dirs=first --icon=never --hyperlink=auto --tree --depth=2"
 
+# Show the first 10 directories check changing directory
+function list_all() {
+    emulate -L zsh
+    find *(N) -maxdepth 0 -type d | head -n 10 | paste -sd ' ' - | { dirs=$(cat); printf "%s" "$dirs"; [ $(find *(N) -maxdepth 0 -type d | wc -l) -gt 10 ] && printf " ..."; echo; }
+}
+chpwd_functions=(${chpwd_functions[@]} "list_all")
+
+function sshrc() {
+   RC_DATA=`cat ${HOME}/.ssh/.bashrc | base64 -w 0`
+   ssh -t $@ "echo \"${RC_DATA}\" | base64 --decode > /tmp/${USER}_bashrc; bash --rcfile /tmp/${USER}_bashrc; rm /tmp/${USER}_bashrc"
+}
+
+end=`date +%s%3N`
+echo "\nLoaded in "$((end-start))" miliseconds"
